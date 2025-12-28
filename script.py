@@ -154,10 +154,17 @@ def main():
                     page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
                     
                     # B. Insert new text
-                    # Use system font to ensure Euro symbol support
-                    font_name = "sys_helv"
+                    # Use bundled font to ensure Euro symbol support across platforms (macOS/Linux/Cloud)
+                    font_name = "roboto"
+                    font_path = "Roboto-Regular.ttf"
+                    
                     if font_name not in page.get_fonts():
-                        page.insert_font(fontname=font_name, fontfile="/System/Library/Fonts/Helvetica.ttc", fontbuffer=None)
+                        # Try loading local font file
+                        try:
+                            page.insert_font(fontname=font_name, fontfile=font_path, fontbuffer=None)
+                        except Exception:
+                            # Fallback if font file missing (shouldn't happen if deployed correctly)
+                            font_name = "helv"
 
                     page.insert_text(
                         (rect.x0, original_item["origin"][1]), 
