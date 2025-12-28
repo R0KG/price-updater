@@ -155,12 +155,13 @@ def main():
                     
                     # B. Insert new text
                     # Use bundled font to ensure Euro symbol support across platforms (macOS/Linux/Cloud)
-                    font_name = "roboto"
-                    font_path = "Roboto-Regular.ttf"
+                    font_name = "dejavu"
+                    font_path = "DejaVuSans.ttf"
                     
                     if font_name not in page.get_fonts():
                         # Try loading local font file
                         try:
+                            # Use language="en" (Latin) but DejaVu covers much more
                             page.insert_font(fontname=font_name, fontfile=font_path, fontbuffer=None)
                         except Exception:
                             # Fallback if font file missing (shouldn't happen if deployed correctly)
