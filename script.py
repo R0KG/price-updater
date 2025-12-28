@@ -62,10 +62,10 @@ def apply_markup(text, original_prefix, original_currency, multiplier=1.05):
 
 def main():
     st.set_page_config(layout="wide")
-    st.title("PDF Price Updater")
-    st.write("Upload your catalog, edit prices in the table, and download the result.")
+    st.title("Обновление цен в PDF")
+    st.write("Загрузите каталог, отредактируйте цены в таблице и скачайте результат.")
 
-    uploaded_file = st.file_uploader("Upload PDF", type="pdf")
+    uploaded_file = st.file_uploader("Загрузить PDF", type="pdf")
 
     if uploaded_file is not None:
         # Load PDF
@@ -74,20 +74,20 @@ def main():
         all_prices = []
         
         # 1. Extraction Phase
-        with st.spinner("Scanning PDF for prices..."):
+        with st.spinner("Сканирование PDF на наличие цен..."):
             for i, page in enumerate(doc):
                 items = extract_prices_from_page(page, i)
                 all_prices.extend(items)
         
         if not all_prices:
-            st.warning("No prices found matching the format (e.g., '35 000 €').")
+            st.warning("Цены не найдены (формат: '35 000 €').")
             return
 
         # Display editable data editor
-        st.subheader(f"Found {len(all_prices)} price tags")
+        st.subheader(f"Найдено {len(all_prices)} ценников")
         
         markup_percent = st.number_input(
-            "Markup Percentage (%)", 
+            "Процент наценки (%)", 
             min_value=0.0, 
             value=5.0, 
             step=0.1,
@@ -117,16 +117,16 @@ def main():
             data_for_df,
             column_config={
                 "ID": st.column_config.NumberColumn(disabled=True),
-                "Page": st.column_config.NumberColumn(disabled=True),
-                "Original Text": st.column_config.TextColumn(disabled=True),
-                "New Text": st.column_config.TextColumn(help="Edit this value")
+                "Page": st.column_config.NumberColumn("Страница", disabled=True),
+                "Original Text": st.column_config.TextColumn("Исходный текст", disabled=True),
+                "New Text": st.column_config.TextColumn("Новый текст", help="Отредактируйте это значение")
             },
             hide_index=True,
             width="stretch"
         )
 
         # 3. Generation Phase
-        if st.button("Generate Updated PDF"):
+        if st.button("Создать обновленный PDF"):
             # Create a clean copy for modification
             uploaded_file.seek(0)
             doc_new = fitz.open(stream=uploaded_file.read(), filetype="pdf")
@@ -179,9 +179,9 @@ def main():
             doc_new.save(output_buffer)
             doc_new.close()
             
-            st.success("PDF Processed!")
+            st.success("PDF обработан!")
             st.download_button(
-                label="Download Updated PDF",
+                label="Скачать обновленный PDF",
                 data=output_buffer.getvalue(),
                 file_name="Updated_Catalog.pdf",
                 mime="application/pdf"
