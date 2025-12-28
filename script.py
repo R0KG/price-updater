@@ -46,7 +46,6 @@ def process_span(span, page_num, price_pattern):
 
 def apply_markup(text, original_prefix, original_currency, multiplier=1.05):
     """
-    """
     Parses a number from text, applies a markup, and formats it back.
     """
     # Fix: Added (?!\d) to ensure we don't match 160 inside 1600
