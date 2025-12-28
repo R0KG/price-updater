@@ -10,8 +10,9 @@ def extract_prices_from_page(page, page_num):
     # This Regex looks for:
     # 1. Optional "Стоимость" or "Стоимость -" (captured as 'prefix')
     # 2. Numbers (including spaces like 35 000) (captured as 'value')
-    # 3. The Euro symbol (captured as 'currency')
-    price_pattern = re.compile(r"(?P<prefix>Стоимость\s*[-–]?\s*)?(?P<value>\d{1,3}(?:[\. ]\d{3})*|\d+)\s*(?P<currency>€)", re.IGNORECASE)
+    # 3. The Euro symbol OR a trailing dot (captured as 'currency')
+    # We allow '.' as currency because some PDFs have bad encoding or just use dots
+    price_pattern = re.compile(r"(?P<prefix>Стоимость\s*[-–]?\s*)?(?P<value>\d{1,3}(?:[\. ]\d{3})*(?!\d)|\d+)\s*(?P<currency>[€\.])", re.IGNORECASE)
     
     found_items = []
     blocks = page.get_text("dict")["blocks"]
@@ -57,7 +58,8 @@ def apply_markup(text, original_prefix, original_currency, multiplier=1.05):
     try:
         final_val = int(round(float(raw_val) * multiplier))
         formatted_val = f"{final_val:,}".replace(",", " ")
-        return f"{original_prefix}{formatted_val} {original_currency}"
+        # Always return Euro symbol even if matched with a dot
+        return f"{original_prefix}{formatted_val} €"
     except ValueError:
         return text
 
