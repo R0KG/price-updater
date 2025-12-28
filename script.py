@@ -131,7 +131,7 @@ def main():
             uploaded_file.seek(0)
             doc_new = fitz.open(stream=uploaded_file.read(), filetype="pdf")
             
-            # Iterate through edits
+            # Iterate through edits - PASS 1: Whiteout (Cleaning)
             for row in edited_rows:
                 original_idx = row["ID"]
                 new_text_val = row["New Text"]
@@ -142,6 +142,19 @@ def main():
                     page = doc_new[original_item["page"] - 1]
                     rect = fitz.Rect(original_item["bbox"])
                     
+                    # A. "Whiteout" the old text
+                    page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+
+            # Iterate through edits - PASS 2: Insert New Text
+            for row in edited_rows:
+                original_idx = row["ID"]
+                new_text_val = row["New Text"]
+                original_item = all_prices[original_idx]
+                
+                if new_text_val != original_item["original_text"]:
+                    page = doc_new[original_item["page"] - 1]
+                    rect = fitz.Rect(original_item["bbox"])
+
                     # Use multiplier=1.0 because the markup is already applied in the UI
                     display_text = apply_markup(
                         new_text_val, 
@@ -150,9 +163,6 @@ def main():
                         multiplier=1.0
                     )
 
-                    # A. "Whiteout" the old text
-                    page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
-                    
                     # B. Insert new text
                     # Use bundled font to ensure Euro symbol support across platforms (macOS/Linux/Cloud)
                     font_name = "dejavu"
